@@ -18,4 +18,5 @@ A aplicação será consumida por uma aplicação Front-end escrita em Html, CSS
 # Configurando ambiente:
 
 Para subir o Back-end é necessário rodar a class `ForumApplication`;
+
 Para rodar o Front-end é necessário abrir no navegador o arquivo `index.html`.
