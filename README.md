@@ -11,11 +11,11 @@ A aplicação permite:
 
 O servidor foi feito em Java e utilizado o framework SpringBoot, com teste unitário mockado.
 
-#Front-end:
+# Front-end:
 
 A aplicação será consumida por uma aplicação Front-end escrita em Html, CSS, Javascript, BootStrap.
 
-#Configurando ambiente:
+# Configurando ambiente:
 
 Para subir o Back-end é necessário rodar a class `ForumApplication`;
 Para rodar o Front-end é necessário abrir no navegador o arquivo `index.html`.
