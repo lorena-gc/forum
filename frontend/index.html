@@ -19,7 +19,7 @@
 	<div class="row">
 		<div class="col-md-6 mx-auto" style="margin-bottom:20px">
 			<div class="form-floating">
-			  <textarea class="form-control" id="content" style="height: 100px"></textarea>
+			  <textarea maxlength="255" class="form-control" id="content" style="height: 100px; "></textarea>
 			  <label for="content">Content</label>
 			</div>
 		</div>
@@ -34,46 +34,6 @@
 	<div class="row">
 		<div class="col-md-6 mx-auto">
 			<div class="accordion" id="accordionExample">
-			  <div class="accordion-item">
-				<h2 class="accordion-header" id="headingOne">
-				  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-					Accordion Item #1
-				  </button>
-				</h2>
-				<div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
-				  <div class="accordion-body">
-					<strong>This is the first item's accordion body.</strong> It is shown by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
-				  </div>
-				  <div style="margin-bottom:10px">
-					<button type="button" class="btn btn-primary">52<i class="fa fa-thumbs-up" style="margin-left:10px"></i></button>
-					<button type="button" class="btn btn-primary">15<i class="fa fa-thumbs-down" style="margin-left:10px"></i></button>
-				  </div>
-				</div>
-			  </div>
-			  <div class="accordion-item">
-				<h2 class="accordion-header" id="headingTwo">
-				  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-					Accordion Item #2
-				  </button>
-				</h2>
-				<div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
-				  <div class="accordion-body">
-					<strong>This is the second item's accordion body.</strong> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
-				  </div>
-				</div>
-			  </div>
-			  <div class="accordion-item">
-				<h2 class="accordion-header" id="headingThree">
-				  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-					Accordion Item #3
-				  </button>
-				</h2>
-				<div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
-				  <div class="accordion-body">
-					<strong>This is the third item's accordion body.</strong> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
-				  </div>
-				</div>
-			  </div>
 			</div>
 		</div>
 	</div>
@@ -81,33 +41,61 @@
 	<script src="https://code.jquery.com/jquery-3.5.0.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 	<script>
+		
+		function vote(type, postId) {
+		  var request = $.ajax({
+			  url: "http://localhost:8080/post/" + postId + "/vote",
+			  method: "POST",
+			  data: "{\"type\":\""+type+"\"}",	
+			  contentType: 'application/json'
+			}).done(loadPosts).fail(function()  {
+				alert("Error...");
+			});
+		}
+
 		$( "#sendButtom" ).click(function() {
 		  var content = $('#content').val();
-		  
 			var request = $.ajax({
 			  url: "http://localhost:8080/post",
 			  method: "POST",
 			  data: "{ \"content\" : \"" + content + "\"}",
 			  contentType: 'application/json'
-			}).done(function() {
-				alert("Sucess");
-				$('#content').val("");
-			}).fail(function()  {
+			}).done(loadPosts)
+			  .fail(function()  {
 				alert("Error...");
 			});
 		});
-		
-		$( document ).ready(function() {
+
+		var loadPosts = function() {
 			var request = $.ajax({
 			  url: "http://localhost:8080/post",
 			  method: "GET",
 			  contentType: 'application/json'
 			}).done(function(msg) {
 				console.log(msg);
+				$("#accordionExample").empty();
+				msg.forEach(function(item, index){
+					$("#accordionExample").append(
+						"<div class=\"accordion-item\">" 
+						  +"<h2 class=\"accordion-header\" id=\"item_"+index+"\"> <button class=\"accordion-button collapsed\" type=\"button\" data-bs-toggle=\"collapse\" data-bs-target=\"#collapse_"+index+"\" aria-expanded=\"true\" aria-controls=\"collapse_"+index+"\"><strong>Post #"+(index+1)+ "</strong> : " + new Date(item.createdDate).toLocaleDateString() +"</button></h2>"
+						   +"<div id=\"collapse_"+index+"\" class=\"accordion-collapse collapse\" aria-labelledby=\"item_"+index+"\" data-bs-parent=\"#accordionExample\">"
+							  +"<div class=\"accordion-body\" style=\"word-wrap: break-word;\">"+item.content+"</div>"
+							  +"<div style=\"margin-bottom:10px;text-align:right;\">"
+								 +"<button onclick=\"vote('UP',"+item.id+")\" type=\"button\" style=\"margin-right:10px;\" class=\"btn btn-primary\">"+item.countUpVote+"<i class=\"fa fa-thumbs-up\" style=\"margin-left:10px;\"></i></button>"
+								 +"<button onclick=\"vote('DOWN',"+item.id+")\"type=\"button\" style=\"margin-right:10px;\" class=\"btn btn-primary\">"+item.countDownVote+"<i class=\"fa fa-thumbs-down\" style=\"margin-left:10px;\"></i></button>"
+							  +"</div>"
+						   +"</div>"
+						+"</div>")					
+				  });
+				$('#content').val("");
 			}).fail(function()  {
 				alert("Error...");
 			});
-		});
+		};
+
+		
+
+		$(document).ready(loadPosts);
 	</script>
   </body>
 </html>
